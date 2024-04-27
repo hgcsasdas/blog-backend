@@ -3,7 +3,6 @@ package hgc.backendblog.blog.controller;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -20,8 +19,6 @@ import hgc.backendblog.blog.DTO.BlogDto;
 import hgc.backendblog.blog.DTO.CommentDto;
 import hgc.backendblog.blog.Entity.Blog;
 import hgc.backendblog.blog.service.BlogService;
-import hgc.backendblog.blog.service.BlogServiceImpl;
-import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/hgcBackendBlogs/users/api/blogs")
@@ -30,14 +27,12 @@ public class BlogUserController {
 
     private final BlogService blogService;
 
-    @Autowired
     public BlogUserController(BlogService blogService) {
         this.blogService = blogService;
     }
 
     @PostMapping
     public ResponseEntity<Blog> createBlog(@RequestBody BlogDto blogDto) {
-    	System.out.println("entré");
         Blog createdBlog = blogService.createBlog(blogDto);
         return new ResponseEntity<>(createdBlog, HttpStatus.CREATED);
     }
