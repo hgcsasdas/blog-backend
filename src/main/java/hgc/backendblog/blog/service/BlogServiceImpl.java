@@ -2,6 +2,7 @@ package hgc.backendblog.blog.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,9 +17,11 @@ import com.google.cloud.firestore.QuerySnapshot;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.cloud.FirestoreClient;
 
+import hgc.backendblog.User.UserRepository;
 import hgc.backendblog.blog.DTO.BlogDto;
 import hgc.backendblog.blog.DTO.CommentDto;
 import hgc.backendblog.blog.Entity.Blog;
+import hgc.backendblog.blog.Responses.BlogCUDResponse;
 
 @Service
 public class BlogServiceImpl implements BlogService {
@@ -26,12 +29,14 @@ public class BlogServiceImpl implements BlogService {
 	private final Firestore firestore;
 	private final CollectionReference blogsCollection;
 	private final CollectionReference usersCollection;
+	private final UserRepository userRepository;
 
 	@Autowired
-	public BlogServiceImpl(FirebaseApp firebaseApp) {
+	public BlogServiceImpl(FirebaseApp firebaseApp, UserRepository userRepository) {
 		this.firestore = FirestoreClient.getFirestore(firebaseApp);
 		this.blogsCollection = firestore.collection("blogs");
 		this.usersCollection = firestore.collection("users");
+		this.userRepository = userRepository;
 	}
 
 	@Override
@@ -74,7 +79,7 @@ public class BlogServiceImpl implements BlogService {
 	}
 
 	@Override
-	public Blog createBlog(BlogDto blogDto) {
+	public BlogCUDResponse createBlog(BlogDto blogDto) {
 		Blog blog = new Blog();
 		blog.setTitle(blogDto.getTitle());
 		blog.setAuthor(blogDto.getAuthor());
@@ -85,9 +90,10 @@ public class BlogServiceImpl implements BlogService {
 		String authorName = blogDto.getAuthor();
 		String userId = getUserIdByAuthorName(authorName);
 
-
 		if (userId != null) {
 			addUserBlog(userId, savedBlog.getId());
+		} else {
+			return null;
 		}
 
 		return savedBlog;
@@ -143,17 +149,20 @@ public class BlogServiceImpl implements BlogService {
 
 	private String getUserIdByAuthorName(String authorName) {
 		try {
-			// Realizar una consulta para encontrar al usuario por su nombre
-			ApiFuture<QuerySnapshot> querySnapshot = usersCollection.whereEqualTo("name", authorName).get();
-
-			DocumentSnapshot document = querySnapshot.get().getDocuments().get(0);
-			if (document.exists()) {
-				return document.getId(); // Devolver el ID del usuario
+			
+			Optional<String> userFirebaseIdFromSQLDb = userRepository.findFirebaseIdByUsername(authorName);
+			
+		
+			if (userFirebaseIdFromSQLDb.isPresent()) {
+				return userFirebaseIdFromSQLDb.get(); // Devolver el ID del usuario
 			}
-		} catch (InterruptedException | ExecutionException e) {
-			e.printStackTrace();
-		}
+		
 		return null; // Si no se encuentra el usuario, devolver null
+		} catch (Exception e) {
+			// TODO: handle exception
+			return null; // Si no se encuentra el usuario, devolver null
+
+		}
 	}
 
 	private void addUserBlog(String userId, String blogId) {
