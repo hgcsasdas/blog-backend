@@ -9,21 +9,31 @@ import org.springframework.data.repository.query.Param;
 
 import hgc.backendblog.User.Entitys.Role;
 import hgc.backendblog.User.Entitys.User;
+import jakarta.transaction.Transactional;
 
 public interface UserRepository extends JpaRepository<User, Integer> {
-	Optional<User> findByUsername(String username);
-    Optional<User> findByFirebaseId(String firebaseId); 
-    Optional<User> findByEmail(String firebaseId); 
+    Optional<User> findByUsername(String username);
+    Optional<User> findByFirebaseId(String firebaseId);
+    Optional<User> findByEmail(String firebaseId);
 
-	boolean existsByUsername(String username);
-	boolean existsByEmail(String email);
+    boolean existsByUsername(String username);
+    boolean existsByEmail(String email);
 
-	@Query("SELECT u.role FROM User u WHERE u.username = :username")
-	Optional<Role> findRoleByUsername(@Param("username") String username);
+    @Query("SELECT u.firebaseId FROM User u WHERE u.username = :username")
+    Optional<String> findFirebaseIdByUsername(@Param("username") String username);
 
-/*	@Modifying()
-	@Query("update User u set u.firstname=:firstname, u.lastname=:lastname, u.country=:country where u.id = :id")
-	void updateUser(@Param(value = "id") Integer id, @Param(value = "firstname") String firstname,
-			@Param(value = "lastname") String lastname, @Param(value = "country") String country);
-*/
+    @Query("SELECT u.blogEntries FROM User u WHERE u.username = :username")
+    Optional<Integer> findBlogEntriesByUsername(@Param("username") String username);
+
+    @Query("SELECT u.role FROM User u WHERE u.username = :username")
+    Optional<Role> findRoleByUsername(@Param("username") String username);
+
+    @Transactional
+    @Modifying
+    @Query("UPDATE User u SET u.blogEntries = :blogEntries WHERE u.username = :username")
+    void updateBlogEntriesByUsername(@Param("username") String username, @Param("blogEntries") Integer blogEntries);
+
+   /* @Query("SELECT CASE WHEN COUNT(u) > 0 THEN true ELSE false END FROM User u WHERE u.username = :username AND u.role = 'ROLE_ADMIN'")
+    boolean isAdmin(@Param("username") String username);*/
+
 }

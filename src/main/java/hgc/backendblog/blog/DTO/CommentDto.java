@@ -2,38 +2,32 @@ package hgc.backendblog.blog.DTO;
 
 public class CommentDto {
 
-    private String commenterName;
-    private String commentText;
+    private String author;
+    private String content;
+
+    // Constructor, getters y setters
 
     public CommentDto() {
     }
 
-    public CommentDto(String commenterName, String commentText) {
-        this.commenterName = commenterName;
-        this.commentText = commentText;
+    public CommentDto(String author, String content) {
+        this.author = author;
+        this.content = content;
     }
 
-    public String getCommenterName() {
-        return commenterName;
+    public String getAuthor() {
+        return author;
     }
 
-    public void setCommenterName(String commenterName) {
-        this.commenterName = commenterName;
+    public void setAuthor(String author) {
+        this.author = author;
     }
 
-    public String getCommentText() {
-        return commentText;
+    public String getContent() {
+        return content;
     }
 
-    public void setCommentText(String commentText) {
-        this.commentText = commentText;
-    }
-
-    @Override
-    public String toString() {
-        return "CommentDto{" +
-                "commenterName='" + commenterName + '\'' +
-                ", commentText='" + commentText + '\'' +
-                '}';
+    public void setContent(String content) {
+        this.content = content;
     }
 }

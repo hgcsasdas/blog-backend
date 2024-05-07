@@ -2,6 +2,7 @@ package hgc.backendblog.blog.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,9 +17,11 @@ import com.google.cloud.firestore.QuerySnapshot;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.cloud.FirestoreClient;
 
+import hgc.backendblog.User.UserRepository;
 import hgc.backendblog.blog.DTO.BlogDto;
 import hgc.backendblog.blog.DTO.CommentDto;
 import hgc.backendblog.blog.Entity.Blog;
+import hgc.backendblog.blog.Responses.BlogCUDResponse;
 
 @Service
 public class BlogServiceImpl implements BlogService {
@@ -26,14 +29,21 @@ public class BlogServiceImpl implements BlogService {
 	private final Firestore firestore;
 	private final CollectionReference blogsCollection;
 	private final CollectionReference usersCollection;
+	private final UserRepository userRepository;
 
 	@Autowired
-	public BlogServiceImpl(FirebaseApp firebaseApp) {
+	public BlogServiceImpl(FirebaseApp firebaseApp, UserRepository userRepository) {
 		this.firestore = FirestoreClient.getFirestore(firebaseApp);
 		this.blogsCollection = firestore.collection("blogs");
 		this.usersCollection = firestore.collection("users");
+		this.userRepository = userRepository;
 	}
 
+	/**
+	 * Obtiene todos los blogs almacenados en Firestore.
+	 * 
+	 * @return Una lista de objetos Blog.
+	 */
 	@Override
 	public List<Blog> getAllBlogs() {
 		ApiFuture<QuerySnapshot> querySnapshot = blogsCollection.get();
@@ -52,6 +62,12 @@ public class BlogServiceImpl implements BlogService {
 		return blogs;
 	}
 
+	/**
+	 * Obtiene un blog por su ID.
+	 * 
+	 * @param blogId El ID del blog a buscar.
+	 * @return El objeto Blog correspondiente al ID especificado.
+	 */
 	@Override
 	public Blog getBlogById(String blogId) {
 		DocumentReference docRef = blogsCollection.document(blogId);
@@ -73,55 +89,155 @@ public class BlogServiceImpl implements BlogService {
 		return null;
 	}
 
+	/**
+	 * Crea un nuevo blog en Firestore y lo asocia al autor correspondiente.
+	 * 
+	 * @param blogDto Los datos del blog a crear.
+	 * @return Un objeto BlogCUDResponse que indica si se creó el blog
+	 *         correctamente.
+	 */
 	@Override
-	public Blog createBlog(BlogDto blogDto) {
-		Blog blog = new Blog();
-		blog.setTitle(blogDto.getTitle());
-		blog.setAuthor(blogDto.getAuthor());
-		blog.setContent(blogDto.getContent());
-
-		Blog savedBlog = save(blog);
+	public BlogCUDResponse createBlog(BlogDto blogDto) {
+		BlogCUDResponse blogCUDResponse = new BlogCUDResponse();
 
 		String authorName = blogDto.getAuthor();
 		String userId = getUserIdByAuthorName(authorName);
 
+		// Verificar si el usuario tiene blogs disponibles
+		Optional<Integer> blogEntries = userRepository.findBlogEntriesByUsername(authorName);
+		if (blogEntries.isPresent() && blogEntries.get() > 0) {
+			Blog blog = new Blog();
+			blog.setTitle(blogDto.getTitle());
+			blog.setAuthor(blogDto.getAuthor());
+			blog.setContent(blogDto.getContent());
 
-		if (userId != null) {
+			// Añadir el id del blog al usuario en firebase
+			Blog savedBlog = save(blog);
 			addUserBlog(userId, savedBlog.getId());
-		}
 
-		return savedBlog;
+			// Restar uno a la cantidad de blogs disponibles para el usuario
+			userRepository.updateBlogEntriesByUsername(authorName, blogEntries.get() - 1);
+
+			blogCUDResponse.setMessage("Blog guardado correctamente");
+			blogCUDResponse.setDone(true);
+			return blogCUDResponse;
+		} else {
+			blogCUDResponse.setMessage("El usuario no tiene blogs disponibles para crear uno nuevo");
+			return blogCUDResponse;
+		}
 	}
 
+	/**
+	 * Actualiza un blog existente en Firestore.
+	 * 
+	 * @param blogId  El ID del blog a actualizar.
+	 * @param blogDto Los nuevos datos del blog.
+	 * @return Un objeto BlogCUDResponse que indica si se actualizó el blog
+	 *         correctamente.
+	 */
 	@Override
-	public Blog updateBlog(String blogId, BlogDto blogDto) {
+	public BlogCUDResponse updateBlog(String blogId, BlogDto blogDto) {
+		BlogCUDResponse blogCUDResponse = new BlogCUDResponse();
+
 		Blog existingBlog;
 		try {
 			existingBlog = findById(blogId);
 			if (existingBlog != null) {
 				existingBlog.setTitle(blogDto.getTitle());
-				existingBlog.setAuthor(blogDto.getAuthor());
 				existingBlog.setContent(blogDto.getContent());
-				// Actualizar otros campos según la estructura de Firebase
-				return save(existingBlog);
+
+				// Actualizar el documento existente en Firestore
+				update(existingBlog, blogId); // Utiliza el ID existente
+
+				blogCUDResponse.setMessage("Blog actualizado correctamente");
+				blogCUDResponse.setDone(true);
+				return blogCUDResponse;
 			}
 		} catch (ExecutionException | InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
 		return null;
 	}
 
-	@Override
-	public void deleteBlog(String blogId) {
-		blogsCollection.document(blogId).delete();
+	public void update(Blog blog, String blogId) {
+		DocumentReference docRef = blogsCollection.document(blogId);
+		docRef.set(blog);
 	}
 
+	/**
+	 * Elimina un blog existente en Firestore.
+	 * 
+	 * @param blogId El ID del blog a eliminar.
+	 * @return Un objeto BlogCUDResponse que indica si se eliminó el blog
+	 *         correctamente.
+	 */
 	@Override
-	public Blog addCommentToBlog(String blogId, CommentDto commentDto) {
-		// Lógica para añadir un comentario al blog
-		return null;
+	public BlogCUDResponse deleteBlog(String blogId) {
+		BlogCUDResponse blogCUDResponse = new BlogCUDResponse();
+
+		try {
+			Blog blogToDelete = getBlogById(blogId);
+			if (blogToDelete != null) {
+				// Eliminar el blog de la colección de blogs
+				blogsCollection.document(blogId).delete();
+
+				// Obtener el autor del blog
+				String authorName = blogToDelete.getAuthor();
+				String userId = getUserIdByAuthorName(authorName);
+
+				// Actualizar la información del usuario
+				if (userId != null) {
+					removeUserBlog(userId, blogId);
+					updateBlogEntriesForUser(authorName);
+				}
+
+				blogCUDResponse.setMessage("Blog eliminado correctamente");
+				blogCUDResponse.setDone(true);
+			} else {
+				blogCUDResponse.setMessage("El blog no existe");
+			}
+		} catch (Exception e) {
+			blogCUDResponse.setMessage("Error al eliminar el blog: " + e.getMessage());
+			e.printStackTrace();
+		}
+
+		return blogCUDResponse;
+	}
+
+	private void removeUserBlog(String userId, String blogId) {
+		try {
+			// Obtener el documento del usuario
+			DocumentReference userRef = usersCollection.document(userId);
+			ApiFuture<DocumentSnapshot> userSnapshot = userRef.get();
+			DocumentSnapshot userDocument = userSnapshot.get();
+
+			// Obtener el array actual de blogs del usuario
+			List<String> userBlogs = (List<String>) userDocument.get("blogs");
+
+			// Remover el ID del blog del array de blogs del usuario
+			userBlogs.remove(blogId);
+
+			// Actualizar el documento del usuario con el nuevo array de blogs
+			userRef.update("blogs", userBlogs);
+		} catch (InterruptedException | ExecutionException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private void updateBlogEntriesForUser(String authorName) {
+		try {
+			// Obtener la cantidad actual de blogs disponibles para el usuario
+			Optional<Integer> blogEntries = userRepository.findBlogEntriesByUsername(authorName);
+
+			// Si hay blogs disponibles, incrementar en uno la cantidad
+			if (blogEntries.isPresent()) {
+				int newBlogEntries = blogEntries.get() + 1;
+				userRepository.updateBlogEntriesByUsername(authorName, newBlogEntries);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	public Blog save(Blog blog) {
@@ -143,21 +259,23 @@ public class BlogServiceImpl implements BlogService {
 
 	private String getUserIdByAuthorName(String authorName) {
 		try {
-			// Realizar una consulta para encontrar al usuario por su nombre
-			ApiFuture<QuerySnapshot> querySnapshot = usersCollection.whereEqualTo("name", authorName).get();
 
-			DocumentSnapshot document = querySnapshot.get().getDocuments().get(0);
-			if (document.exists()) {
-				return document.getId(); // Devolver el ID del usuario
+			Optional<String> userFirebaseIdFromSQLDb = userRepository.findFirebaseIdByUsername(authorName);
+
+			if (userFirebaseIdFromSQLDb.isPresent()) {
+				return userFirebaseIdFromSQLDb.get();
 			}
-		} catch (InterruptedException | ExecutionException e) {
-			e.printStackTrace();
+			return null;
+		} catch (Exception e) {
+			// TODO: handle exception
+			return null;
+
 		}
-		return null; // Si no se encuentra el usuario, devolver null
 	}
 
 	private void addUserBlog(String userId, String blogId) {
 		try {
+
 			// Obtener el documento del usuario
 			DocumentReference userRef = usersCollection.document(userId);
 			ApiFuture<DocumentSnapshot> userSnapshot = userRef.get();
