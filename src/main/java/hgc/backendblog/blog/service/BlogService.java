@@ -15,10 +15,9 @@ public interface BlogService {
 
     BlogCUDResponse createBlog(BlogDto blogDto);
 
-    Blog updateBlog(String blogId, BlogDto blogDto);
+    BlogCUDResponse updateBlog(String blogId, BlogDto blogDto);
 
-    void deleteBlog(String blogId);
+    BlogCUDResponse deleteBlog(String blogId);
 
-    Blog addCommentToBlog(String blogId, CommentDto commentDto);
 
 }

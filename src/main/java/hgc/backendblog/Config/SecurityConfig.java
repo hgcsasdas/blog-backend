@@ -32,6 +32,7 @@ public class SecurityConfig {
 						.requestMatchers("/auth/**").permitAll()
 						.requestMatchers("/users/api/blogs/**").permitAll()
 						.requestMatchers("/hgcBackendBlogs/users/api/blogs/**").authenticated()
+						.requestMatchers("/hgcBackendBlogs/users/api/blogs/comments**").authenticated()
 						.requestMatchers("/hgcBackendBlogs/users/outer/api/blogs/**").permitAll()
 						//.requestMatchers("/hgcBackendBlogs/users/api").hasAuthority("ROLE_ADMIN")
 						// .requestMatchers("/**").permitAll()

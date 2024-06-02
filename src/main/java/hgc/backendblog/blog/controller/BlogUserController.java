@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import hgc.backendblog.blog.DTO.BlogDto;
 import hgc.backendblog.blog.DTO.CommentDto;
 import hgc.backendblog.blog.Entity.Blog;
+import hgc.backendblog.blog.Responses.BlogCUDResponse;
 import hgc.backendblog.blog.service.BlogService;
 
 @RestController
@@ -32,10 +33,13 @@ public class BlogUserController {
     }
 
     @PostMapping
-    public ResponseEntity<Blog> createBlog(@RequestBody BlogDto blogDto) {
-        Blog createdBlog = blogService.createBlog(blogDto);
-        return new ResponseEntity<>(createdBlog, HttpStatus.CREATED);
-    }
+    public ResponseEntity<BlogCUDResponse> createBlog(@RequestBody BlogDto blogDto) {
+        BlogCUDResponse createdBlog = blogService.createBlog(blogDto);
+        if (createdBlog != null) {
+            return ResponseEntity.ok(createdBlog);
+        } else {
+            return ResponseEntity.notFound().build();
+        }    }
 
     @GetMapping
     public ResponseEntity<List<Blog>> getAllBlogs() {
@@ -54,8 +58,8 @@ public class BlogUserController {
     }
 
     @PutMapping("/{blogId}")
-    public ResponseEntity<Blog> updateBlog(@PathVariable String blogId, @RequestBody BlogDto blogDto) {
-        Blog updatedBlog = blogService.updateBlog(blogId, blogDto);
+    public ResponseEntity<BlogCUDResponse> updateBlog(@PathVariable String blogId, @RequestBody BlogDto blogDto) {
+        BlogCUDResponse updatedBlog = blogService.updateBlog(blogId, blogDto);
         if (updatedBlog != null) {
             return ResponseEntity.ok(updatedBlog);
         } else {
@@ -64,19 +68,16 @@ public class BlogUserController {
     }
 
     @DeleteMapping("/{blogId}")
-    public ResponseEntity<Void> deleteBlog(@PathVariable String blogId) {
-        blogService.deleteBlog(blogId);
-        return ResponseEntity.noContent().build();
-    }
-
-    @PostMapping("/{blogId}/comments")
-    public ResponseEntity<Blog> addCommentToBlog(@PathVariable String blogId, @RequestBody CommentDto commentDto) {
-        Blog updatedBlog = blogService.addCommentToBlog(blogId, commentDto);
-        if (updatedBlog != null) {
-            return ResponseEntity.ok(updatedBlog);
+    public ResponseEntity<BlogCUDResponse> deleteBlog(@PathVariable String blogId) {
+        BlogCUDResponse response = blogService.deleteBlog(blogId);
+        if (response != null) {
+            return ResponseEntity.ok(response);
         } else {
             return ResponseEntity.notFound().build();
         }
     }
+
+
+
 
 }
