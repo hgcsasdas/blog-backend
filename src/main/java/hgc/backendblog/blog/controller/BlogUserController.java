@@ -76,7 +76,15 @@ public class BlogUserController {
             return ResponseEntity.notFound().build();
         }
     }
-
+    @GetMapping("/user/{user}")
+    public ResponseEntity<List<Blog>> getBlogsByUserId(@PathVariable String user) {
+        List<Blog> blogs = blogService.getBlogsByUser(user);
+        if (blogs != null && !blogs.isEmpty()) {
+            return ResponseEntity.ok(blogs);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
 
 
 

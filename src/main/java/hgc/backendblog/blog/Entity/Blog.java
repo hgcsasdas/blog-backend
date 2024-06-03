@@ -1,10 +1,5 @@
 package hgc.backendblog.blog.Entity;
-<<<<<<< HEAD
 
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-=======
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -14,12 +9,7 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
->>>>>>> 7c15b610c3a6838d467816a8c2437e29a4284690
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -31,12 +21,7 @@ public class Blog {
     private String title;
     private String author;
     private String content;
-<<<<<<< HEAD
-    private Map<String, String> comments;
-    private int likes;
-    private int dislikes;
-    private Date date;
-=======
+
     private Map<String, Comment> comments;
     private int likes;
     private int dislikes;
@@ -106,5 +91,4 @@ public class Blog {
 	}
     
     
->>>>>>> 7c15b610c3a6838d467816a8c2437e29a4284690
 }

@@ -66,39 +66,50 @@ public class UserService {
 	}
 
 	public UserResponseDTO userIsUser(FindUserRequest findUserRequest) {
-		Optional<Role> userRole = userRepository.findRoleByUsername(findUserRequest.getUsernameSearching());
+		try {
+			Optional<Role> userRole = userRepository.findRoleByUsername(findUserRequest.getUsernameSearching());
 
-		if (userRole.isPresent() && (userRole.get() == Role.ROLE_ADMIN
-				|| (findUserRequest.getUsernameSearching().equals(findUserRequest.getUsernameToSearch())))) {
+			System.out.println(findUserRequest.getUsernameSearching() + " 0 " + findUserRequest.getUsernameToSearch());
 
-			UserDetails userDetails = userRepository.findByUsername(findUserRequest.getUsernameSearching())
-					.orElseThrow();
-			String newToken = jwtService.getToken(userDetails);
+			if (userRole.isPresent() && (userRole.get() == Role.ROLE_ADMIN
+					|| (findUserRequest.getUsernameSearching().equals(findUserRequest.getUsernameToSearch())))) {
 
-			UserDTO userDTO = searchUserByUsername(findUserRequest.getUsernameToSearch());
+				System.out.println("dentro");
 
-			UserResponseDTO userResponseDTO = new UserResponseDTO(newToken, userDTO);
+				UserDetails userDetails = userRepository.findByUsername(findUserRequest.getUsernameSearching())
+						.orElseThrow();
+				String newToken = jwtService.getToken(userDetails);
 
-			return userResponseDTO;
+				UserDTO userDTO = searchUserByUsername(findUserRequest.getUsernameToSearch());
+
+				UserResponseDTO userResponseDTO = new UserResponseDTO(newToken, userDTO);
+
+				return userResponseDTO;
+			}
+			return null;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
 		}
-
-		return null;
 	}
 
 	public UserRoleResponse getUserRole(FindUserRequest findUserRequest) {
-		Optional<Role> userRoleSearching = userRepository.findRoleByUsername(findUserRequest.getUsernameSearching());
-		Optional<Role> userRoleToSearch = userRepository.findRoleByUsername(findUserRequest.getUsernameToSearch());
-		UserRoleResponse userRoleResponse = new UserRoleResponse();
-		if (userRoleSearching.isPresent() && (userRoleSearching.get() == Role.ROLE_ADMIN
-				|| (findUserRequest.getUsernameSearching().equals(findUserRequest.getUsernameToSearch())))) {
+		try {
+			Optional<Role> userRoleSearching = userRepository.findRoleByUsername(findUserRequest.getUsernameSearching());
+			Optional<Role> userRoleToSearch = userRepository.findRoleByUsername(findUserRequest.getUsernameToSearch());
+			UserRoleResponse userRoleResponse = new UserRoleResponse();
+			if (userRoleSearching.isPresent() && (userRoleSearching.get() == Role.ROLE_ADMIN
+					|| (findUserRequest.getUsernameSearching().equals(findUserRequest.getUsernameToSearch())))) {
 
-			userRoleResponse.setRol(userRoleToSearch.get());
-			return userRoleResponse;
-		} else {
-
+				userRoleResponse.setRol(userRoleToSearch.get());
+				return userRoleResponse;
+			} else {
+				return null;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
 			return null;
 		}
-
 	}
 
 }

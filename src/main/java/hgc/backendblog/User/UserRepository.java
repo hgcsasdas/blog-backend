@@ -16,16 +16,9 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     Optional<User> findByFirebaseId(String firebaseId);
     Optional<User> findByEmail(String firebaseId);
 
-<<<<<<< HEAD
-	boolean existsByUsername(String username);
-	boolean existsByEmail(String email);
-	
-	@Query("SELECT u.firebaseId FROM User u WHERE u.username = :username")
-	Optional<String> findFirebaseIdByUsername(@Param("username") String username);
-=======
+
     boolean existsByUsername(String username);
     boolean existsByEmail(String email);
->>>>>>> 7c15b610c3a6838d467816a8c2437e29a4284690
 
     @Query("SELECT u.firebaseId FROM User u WHERE u.username = :username")
     Optional<String> findFirebaseIdByUsername(@Param("username") String username);

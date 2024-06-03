@@ -1,6 +1,5 @@
 package hgc.backendblog.blog.Responses;
 
-<<<<<<< HEAD
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -11,20 +10,12 @@ import lombok.ToString;
 @NoArgsConstructor
 @Getter
 @Setter
-@ToString
-=======
-import lombok.Data;
-
-@Data
->>>>>>> 7c15b610c3a6838d467816a8c2437e29a4284690
 public class BlogCUDResponse {
 
 	private boolean done = false;
 	private String message;
 	private String token;
-<<<<<<< HEAD
-	
-=======
+
 
 	public BlogCUDResponse() {
 		super();
@@ -61,5 +52,4 @@ public class BlogCUDResponse {
 		this.token = token;
 	}
 
->>>>>>> 7c15b610c3a6838d467816a8c2437e29a4284690
 }
