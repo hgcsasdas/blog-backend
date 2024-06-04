@@ -20,7 +20,6 @@ import com.google.firebase.cloud.FirestoreClient;
 import hgc.backendblog.User.UserRepository;
 import hgc.backendblog.User.Entitys.User;
 import hgc.backendblog.blog.DTO.BlogDto;
-import hgc.backendblog.blog.DTO.CommentDto;
 import hgc.backendblog.blog.Entity.Blog;
 import hgc.backendblog.blog.Responses.BlogCUDResponse;
 

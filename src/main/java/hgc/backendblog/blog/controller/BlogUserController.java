@@ -3,7 +3,6 @@ package hgc.backendblog.blog.controller;
 
 import java.util.List;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -16,7 +15,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import hgc.backendblog.blog.DTO.BlogDto;
-import hgc.backendblog.blog.DTO.CommentDto;
 import hgc.backendblog.blog.Entity.Blog;
 import hgc.backendblog.blog.Responses.BlogCUDResponse;
 import hgc.backendblog.blog.service.BlogService;

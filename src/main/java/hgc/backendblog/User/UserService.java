@@ -9,7 +9,6 @@ import org.springframework.transaction.annotation.Transactional;
 import hgc.backendblog.Jwt.JwtService;
 import hgc.backendblog.User.DTO.UserDTO;
 import hgc.backendblog.User.Entitys.Role;
-import hgc.backendblog.User.Entitys.User;
 import hgc.backendblog.User.Requests.FindUserRequest;
 import hgc.backendblog.User.Requests.UserRequest;
 import hgc.backendblog.User.Responses.UserResponse;

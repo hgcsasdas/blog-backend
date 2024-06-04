@@ -1,13 +1,9 @@
 package hgc.backendblog.blog.Responses;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
 
-@AllArgsConstructor
-@NoArgsConstructor
+
 @Getter
 @Setter
 public class BlogCUDResponse {

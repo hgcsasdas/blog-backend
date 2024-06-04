@@ -1,18 +1,13 @@
 package hgc.backendblog.blog.Entity;
 
 import java.util.Date;
-import java.util.List;
 import java.util.Map;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 
-@NoArgsConstructor
-@AllArgsConstructor
+
 @Getter
 @Setter
 public class Blog {
