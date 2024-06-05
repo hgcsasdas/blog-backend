@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import hgc.backendblog.Jwt.JwtService;
 import hgc.backendblog.User.DTO.UserDTO;
 import hgc.backendblog.User.Entitys.Role;
+import hgc.backendblog.User.Entitys.User;
 import hgc.backendblog.User.Requests.FindUserRequest;
 import hgc.backendblog.User.Requests.UserRequest;
 import hgc.backendblog.User.Responses.UserResponse;
@@ -29,38 +30,48 @@ public class UserService {
 	@Transactional
 	public UserResponse updateUser(UserRequest userRequest) {
 
-		/*User user = new User(userRequest.getUsername(), userRequest.getLastname(),
-				userRequest.getFirstname(), userRequest.getCountry());
-
-		userRepository.updateUser(user.getId(), user.getFirstname(), user.getLastname(), user.getCountry());
-
-		UserDetails userDetails = userRepository.findByUsername(user.getUsername()).orElseThrow();
-		String newToken = jwtService.getToken(userDetails);
-*/
-		//return new UserResponse("El usuario se actualizó satisfactoriamente", newToken);
+		/*
+		 * User user = new User(userRequest.getUsername(), userRequest.getLastname(),
+		 * userRequest.getFirstname(), userRequest.getCountry());
+		 * 
+		 * userRepository.updateUser(user.getId(), user.getFirstname(),
+		 * user.getLastname(), user.getCountry());
+		 * 
+		 * UserDetails userDetails =
+		 * userRepository.findByUsername(user.getUsername()).orElseThrow(); String
+		 * newToken = jwtService.getToken(userDetails);
+		 */
+		// return new UserResponse("El usuario se actualizó satisfactoriamente",
+		// newToken);
 		return null;
 
 	}
 
-	public UserDTO getUser(Integer id) {
-		/*User user = userRepository.findById(id).orElse(null);
-
-		if (user != null) {
-			UserDTO userDTO = new UserDTO(user.getId(), user.getUsername(), user.getFirstname(), user.getLastname(),
-					user.getCountry());
-			return userDTO;
-		}*/
+	public UserDTO getUser(FindUserRequest findUserRequest) {
+		/*
+		 * Optional<User> userOptional =
+		 * userRepository.findByUsername(findUserRequest.getUsernameToSearch()); if
+		 * (userOptional.isPresent()) { User user = userOptional.get(); String newToken
+		 * = jwtService.generateToken(user); UserDTO userDTO = new UserDTO(user.getId(),
+		 * user.getFirebaseId(), user.getEmail(), newToken, user.getPlan(),
+		 * user.getBlogEntries(), user.getUsername()); return userDTO; }
+		 */
 		return null;
 	}
 
 	public UserDTO searchUserByUsername(String username) {
-		/*User user = userRepository.findByUsername(username).orElse(null);
 
+		User user = userRepository.findByUsername(username).orElse(null);
+
+		
+		
 		if (user != null) {
-			UserDTO userDTO = new UserDTO(user.getId(), user.getUsername(), user.getFirstname(), user.getLastname(),
-					user.getCountry());
+		
+			UserDTO userDTO = new UserDTO(user.getId(), user.getFirebaseId(), user.getEmail(), user.getApiToken(), user.getPlan(),
+					user.getBlogEntries(), user.getUsername());
 			return userDTO;
-		}*/
+		}
+
 		return null;
 	}
 
@@ -68,18 +79,16 @@ public class UserService {
 		try {
 			Optional<Role> userRole = userRepository.findRoleByUsername(findUserRequest.getUsernameSearching());
 
-			System.out.println(findUserRequest.getUsernameSearching() + " 0 " + findUserRequest.getUsernameToSearch());
-
 			if (userRole.isPresent() && (userRole.get() == Role.ROLE_ADMIN
 					|| (findUserRequest.getUsernameSearching().equals(findUserRequest.getUsernameToSearch())))) {
-
-				System.out.println("dentro");
 
 				UserDetails userDetails = userRepository.findByUsername(findUserRequest.getUsernameSearching())
 						.orElseThrow();
 				String newToken = jwtService.getToken(userDetails);
 
 				UserDTO userDTO = searchUserByUsername(findUserRequest.getUsernameToSearch());
+
+				System.out.println(userDTO.toString());
 
 				UserResponseDTO userResponseDTO = new UserResponseDTO(newToken, userDTO);
 
@@ -94,7 +103,8 @@ public class UserService {
 
 	public UserRoleResponse getUserRole(FindUserRequest findUserRequest) {
 		try {
-			Optional<Role> userRoleSearching = userRepository.findRoleByUsername(findUserRequest.getUsernameSearching());
+			Optional<Role> userRoleSearching = userRepository
+					.findRoleByUsername(findUserRequest.getUsernameSearching());
 			Optional<Role> userRoleToSearch = userRepository.findRoleByUsername(findUserRequest.getUsernameToSearch());
 			UserRoleResponse userRoleResponse = new UserRoleResponse();
 			if (userRoleSearching.isPresent() && (userRoleSearching.get() == Role.ROLE_ADMIN

@@ -3,6 +3,7 @@ package hgc.backendblog.blog.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -12,7 +13,8 @@ import hgc.backendblog.blog.Requests.UserBlogRequestDTO;
 import hgc.backendblog.blog.service.UserLikesDislikesService;
 
 @RestController
-@RequestMapping("/users")
+@RequestMapping("hgcBackendBlogs/users/api/blogs/likes")
+@CrossOrigin(origins = { "http://localhost:4200" })
 public class UserLikesDislikesController {
 
     private final UserLikesDislikesService userLikesDislikesService;
@@ -26,6 +28,7 @@ public class UserLikesDislikesController {
     public ResponseEntity<String> likeBlog(@RequestBody UserBlogRequestDTO requestDTO) {
         String username = requestDTO.getUsername();
         String blogId = requestDTO.getBlogId();
+        System.out.println(username +  " " + blogId);
         boolean success = userLikesDislikesService.likeBlog(username, blogId);
         if (success) {
             return ResponseEntity.ok("Like añadido correctamente");

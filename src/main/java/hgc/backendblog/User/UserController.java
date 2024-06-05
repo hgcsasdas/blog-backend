@@ -26,14 +26,29 @@ public class UserController {
 
 	@PostMapping(value = "/find-user")
 	public ResponseEntity<UserResponseDTO> getUserByUsername(@RequestBody FindUserRequest findUserRequest) {
+System.out.println(findUserRequest.getUsernameSearching());
 		UserResponseDTO userResponseDTO = userService.userIsUser(findUserRequest);
-
+		System.out.println(userResponseDTO.getUserDto().toString());
+		
 		if (userResponseDTO.getUserDto() == null) {
 			return ResponseEntity.notFound().build();
 		}
 		return ResponseEntity.ok(userResponseDTO);
 	}
 
+	@PostMapping(value = "/find-user-data")
+	public ResponseEntity<UserResponseDTO> getUserDataByUsername(@RequestBody FindUserRequest findUserRequest) {
+		/*UserResponseDTO userResponseDTO = userService.getUser(findUserRequest);
+		
+		System.out.println(userResponseDTO.getUserDto());
+		
+		if (userResponseDTO.getUserDto() == null) {
+			return ResponseEntity.notFound().build();
+		}
+		return ResponseEntity.ok(userResponseDTO);*/
+		return null;
+	}
+	
 	@PostMapping(value = "/getRole")
 	public ResponseEntity<UserRoleResponse> getUserRole(@RequestBody FindUserRequest findUserRequest) {
 		UserRoleResponse userRoleResponse = userService.getUserRole(findUserRequest);
