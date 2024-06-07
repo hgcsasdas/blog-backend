@@ -19,5 +19,7 @@ public interface BlogService {
     BlogCUDResponse deleteBlog(String blogId);
 
     List<Blog> getBlogsByUser(String user);
+    
+    List<Blog> getBlogsByApiKey(String username, String apiKey);
 
 }

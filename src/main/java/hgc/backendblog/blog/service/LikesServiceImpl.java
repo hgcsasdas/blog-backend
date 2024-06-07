@@ -52,13 +52,14 @@ public class LikesServiceImpl implements UserLikesDislikesService {
 
     private boolean updateLikesDislikes(String username, String blogId, boolean like, boolean dislike, boolean unlike, boolean undislike) {
         try {
-            // Update user document
+            // Obtener el ID del usuario
             Optional<String> userId = userRepository.findFirebaseIdByUsername(username);
             if (!userId.isPresent()) {
                 // Manejar si el usuario no está presente
                 return false;
             }
 
+            // Referencia al documento del usuario
             DocumentReference userRef = firestore.collection("users").document(userId.get());
             ApiFuture<DocumentSnapshot> userFuture = userRef.get();
             DocumentSnapshot userDocument = userFuture.get();
@@ -69,11 +70,11 @@ public class LikesServiceImpl implements UserLikesDislikesService {
                     List<String> likedBlogs = user.getLikedBlogs();
                     List<String> dislikedBlogs = user.getDisLikedBlogs();
 
-                    // Check if the blog already exists in likedBlogs or dislikedBlogs
+                    // Verificar si el blog ya está en likedBlogs o dislikedBlogs
                     boolean blogAlreadyLiked = likedBlogs.contains(blogId);
                     boolean blogAlreadyDisliked = dislikedBlogs.contains(blogId);
 
-                    // Update blog document
+                    // Referencia al documento del blog
                     DocumentReference blogRef = firestore.collection("blogs").document(blogId);
                     ApiFuture<DocumentSnapshot> blogFuture = blogRef.get();
                     DocumentSnapshot blogDocument = blogFuture.get();
@@ -121,7 +122,7 @@ public class LikesServiceImpl implements UserLikesDislikesService {
                         blogRef.update("dislikes", dislikes);
                     }
 
-                    // Update the user document in Firestore
+                    // Actualizar el documento del usuario en Firestore
                     userRef.update("likedBlogs", likedBlogs);
                     userRef.update("dislikedBlogs", dislikedBlogs);
                 }
@@ -133,4 +134,5 @@ public class LikesServiceImpl implements UserLikesDislikesService {
             return false;
         }
     }
+
 }

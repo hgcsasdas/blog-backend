@@ -107,7 +107,7 @@ public class BlogServiceImpl implements BlogService {
 		BlogCUDResponse blogCUDResponse = new BlogCUDResponse();
 		String token = jwtService.refreshToken(blogDto.getToken());
 		blogCUDResponse.setToken(token);
-		
+
 		String authorName = blogDto.getAuthor();
 		String userId = getUserIdByAuthorName(authorName);
 
@@ -151,7 +151,6 @@ public class BlogServiceImpl implements BlogService {
 		BlogCUDResponse blogCUDResponse = new BlogCUDResponse();
 		String token = jwtService.refreshToken(blogDto.getToken());
 		blogCUDResponse.setToken(token);
-		
 
 		Blog existingBlog;
 		try {
@@ -173,7 +172,7 @@ public class BlogServiceImpl implements BlogService {
 		} catch (ExecutionException | InterruptedException e) {
 			e.printStackTrace();
 			blogCUDResponse.setMessage("huno un error creando el blog, contacte con el administrador");
-			
+
 			return blogCUDResponse;
 		}
 
@@ -194,7 +193,7 @@ public class BlogServiceImpl implements BlogService {
 	@Override
 	public BlogCUDResponse deleteBlog(String blogId) {
 		BlogCUDResponse blogCUDResponse = new BlogCUDResponse();
-		
+
 		try {
 			Blog blogToDelete = getBlogById(blogId);
 			if (blogToDelete != null) {
@@ -345,6 +344,19 @@ public class BlogServiceImpl implements BlogService {
 			Thread.currentThread().interrupt(); // Re-interrupt the thread
 		}
 		return blogs;
+	}
+
+	@Override
+	public List<Blog> getBlogsByApiKey(String username, String apiKey) {
+		Optional<User> userOpt = userRepository.findByUsername(username);
+		if (userOpt.isPresent() && apiKey.equals(apiKey)) {
+
+			return getBlogsByUser(username);
+		} else {
+
+			return null;
+		}
+
 	}
 
 }
