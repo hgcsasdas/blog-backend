@@ -18,7 +18,7 @@ import hgc.backendblog.blog.service.CommentService;
 
 @RestController
 @RequestMapping("/hgcBackendBlogs/users/api/blogs/comments")
-@CrossOrigin(origins = { "http://localhost:4200" })
+@CrossOrigin(origins = { "http://localhost:4200", "https://blogpi-tfg.netlify.app" })
 public class CommentController {
 
     private final CommentService commentService;

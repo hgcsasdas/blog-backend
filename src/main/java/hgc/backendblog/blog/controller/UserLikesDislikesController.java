@@ -14,7 +14,7 @@ import hgc.backendblog.blog.service.UserLikesDislikesService;
 
 @RestController
 @RequestMapping("hgcBackendBlogs/users/api/blogs/likes")
-@CrossOrigin(origins = { "http://localhost:4200" })
+@CrossOrigin(origins = { "http://localhost:4200", "https://blogpi-tfg.netlify.app" })
 public class UserLikesDislikesController {
 
     private final UserLikesDislikesService userLikesDislikesService;

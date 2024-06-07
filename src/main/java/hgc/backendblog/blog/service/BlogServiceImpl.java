@@ -1,6 +1,7 @@
 package hgc.backendblog.blog.service;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
@@ -22,6 +23,7 @@ import hgc.backendblog.User.Entitys.User;
 import hgc.backendblog.blog.DTO.BlogDto;
 import hgc.backendblog.blog.Entity.Blog;
 import hgc.backendblog.blog.Responses.BlogCUDResponse;
+import hgc.backendblog.Jwt.JwtService;
 
 @Service
 public class BlogServiceImpl implements BlogService {
@@ -30,13 +32,16 @@ public class BlogServiceImpl implements BlogService {
 	private final CollectionReference blogsCollection;
 	private final CollectionReference usersCollection;
 	private final UserRepository userRepository;
+	private final JwtService jwtService;
 
 	@Autowired
-	public BlogServiceImpl(FirebaseApp firebaseApp, UserRepository userRepository) {
+	public BlogServiceImpl(FirebaseApp firebaseApp, UserRepository userRepository, JwtService jwtService) {
 		this.firestore = FirestoreClient.getFirestore(firebaseApp);
 		this.blogsCollection = firestore.collection("blogs");
 		this.usersCollection = firestore.collection("users");
 		this.userRepository = userRepository;
+		this.jwtService = jwtService;
+
 	}
 
 	/**
@@ -100,7 +105,9 @@ public class BlogServiceImpl implements BlogService {
 	public BlogCUDResponse createBlog(BlogDto blogDto) {
 
 		BlogCUDResponse blogCUDResponse = new BlogCUDResponse();
-
+		String token = jwtService.refreshToken(blogDto.getToken());
+		blogCUDResponse.setToken(token);
+		
 		String authorName = blogDto.getAuthor();
 		String userId = getUserIdByAuthorName(authorName);
 
@@ -111,6 +118,9 @@ public class BlogServiceImpl implements BlogService {
 			blog.setTitle(blogDto.getTitle());
 			blog.setAuthor(blogDto.getAuthor());
 			blog.setContent(blogDto.getContent());
+			blog.setDate(new Date());
+			System.out.println(blog.toString());
+			System.out.println(blog.getDate());
 
 			// Añadir el id del blog al usuario en firebase
 			Blog savedBlog = save(blog);
@@ -139,6 +149,9 @@ public class BlogServiceImpl implements BlogService {
 	@Override
 	public BlogCUDResponse updateBlog(String blogId, BlogDto blogDto) {
 		BlogCUDResponse blogCUDResponse = new BlogCUDResponse();
+		String token = jwtService.refreshToken(blogDto.getToken());
+		blogCUDResponse.setToken(token);
+		
 
 		Blog existingBlog;
 		try {
@@ -153,12 +166,17 @@ public class BlogServiceImpl implements BlogService {
 				blogCUDResponse.setMessage("Blog actualizado correctamente");
 				blogCUDResponse.setDone(true);
 				return blogCUDResponse;
+			} else {
+				blogCUDResponse.setMessage("huno un error creando el blog, contacte con el administrador");
+				return blogCUDResponse;
 			}
 		} catch (ExecutionException | InterruptedException e) {
 			e.printStackTrace();
+			blogCUDResponse.setMessage("huno un error creando el blog, contacte con el administrador");
+			
+			return blogCUDResponse;
 		}
 
-		return null;
 	}
 
 	public void update(Blog blog, String blogId) {
@@ -176,7 +194,7 @@ public class BlogServiceImpl implements BlogService {
 	@Override
 	public BlogCUDResponse deleteBlog(String blogId) {
 		BlogCUDResponse blogCUDResponse = new BlogCUDResponse();
-
+		
 		try {
 			Blog blogToDelete = getBlogById(blogId);
 			if (blogToDelete != null) {
@@ -297,36 +315,36 @@ public class BlogServiceImpl implements BlogService {
 
 	@Override
 	public List<Blog> getBlogsByUser(String username) {
-	    List<Blog> blogs = new ArrayList<>();
-	    try {
-	        // Obtener el usuario por nombre de usuario
-	        Optional<User> userOpt = userRepository.findByUsername(username);
+		List<Blog> blogs = new ArrayList<>();
+		try {
+			// Obtener el usuario por nombre de usuario
+			Optional<User> userOpt = userRepository.findByUsername(username);
 
-	        if (userOpt.isPresent()) {
-	            String firebaseId = userOpt.get().getFirebaseId();
+			if (userOpt.isPresent()) {
+				String firebaseId = userOpt.get().getFirebaseId();
 
-	            // Obtener el documento del usuario en Firestore
-	            DocumentReference userRef = usersCollection.document(firebaseId);
-	            DocumentSnapshot userDocument = userRef.get().get();
+				// Obtener el documento del usuario en Firestore
+				DocumentReference userRef = usersCollection.document(firebaseId);
+				DocumentSnapshot userDocument = userRef.get().get();
 
-	            if (userDocument.exists()) {
-	                // Obtener el array de blogs del usuario
-	                List<String> userBlogs = (List<String>) userDocument.get("blogs");
+				if (userDocument.exists()) {
+					// Obtener el array de blogs del usuario
+					List<String> userBlogs = (List<String>) userDocument.get("blogs");
 
-	                // Obtener cada blog por su ID y añadirlo a la lista de blogs
-	                for (String blogId : userBlogs) {
-	                    Blog blog = getBlogById(blogId);
-	                    if (blog != null) {
-	                        blogs.add(blog);
-	                    }
-	                }
-	            }
-	        }
-	    } catch (InterruptedException | ExecutionException e) {
-	        e.printStackTrace();
-	        Thread.currentThread().interrupt(); // Re-interrupt the thread
-	    }
-	    return blogs;
+					// Obtener cada blog por su ID y añadirlo a la lista de blogs
+					for (String blogId : userBlogs) {
+						Blog blog = getBlogById(blogId);
+						if (blog != null) {
+							blogs.add(blog);
+						}
+					}
+				}
+			}
+		} catch (InterruptedException | ExecutionException e) {
+			e.printStackTrace();
+			Thread.currentThread().interrupt(); // Re-interrupt the thread
+		}
+		return blogs;
 	}
 
 }

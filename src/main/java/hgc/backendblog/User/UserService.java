@@ -79,6 +79,10 @@ public class UserService {
 		try {
 			Optional<Role> userRole = userRepository.findRoleByUsername(findUserRequest.getUsernameSearching());
 
+			System.out.println(userRole.get());
+			System.out.println(findUserRequest.getUsernameToSearch());
+			System.out.println(findUserRequest.getUsernameSearching());
+			
 			if (userRole.isPresent() && (userRole.get() == Role.ROLE_ADMIN
 					|| (findUserRequest.getUsernameSearching().equals(findUserRequest.getUsernameToSearch())))) {
 

@@ -21,7 +21,7 @@ import hgc.backendblog.blog.service.BlogService;
 
 @RestController
 @RequestMapping("/hgcBackendBlogs/users/api/blogs")
-@CrossOrigin(origins = { "http://localhost:4200" })
+@CrossOrigin(origins = { "http://localhost:4200", "https://blogpi-tfg.netlify.app" })
 public class BlogUserController {
 
     private final BlogService blogService;
@@ -80,7 +80,7 @@ public class BlogUserController {
         if (blogs != null && !blogs.isEmpty()) {
             return ResponseEntity.ok(blogs);
         } else {
-            return ResponseEntity.notFound().build();
+        	 return ResponseEntity.ok(null); 
         }
     }
 

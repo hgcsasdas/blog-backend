@@ -1,6 +1,7 @@
 package hgc.backendblog.Auth;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Optional;
 
 import org.springframework.security.authentication.AuthenticationManager;
@@ -127,4 +128,41 @@ public class AuthService {
 
 		return response;
 	}
+
+	public PingResponse ping(PingRequest request) {
+        String token = request.getToken();
+        String username = request.getUser();
+        PingResponse response = new PingResponse();
+
+        try {
+            UserDetails userDetails = userRepository.findByUsername(username)
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+            
+            if (!jwtService.isTokenValid(token, userDetails)) {
+                response.setLogout(true);
+                return response;
+            }
+
+            Date expirationDate = jwtService.getExpiration(token);
+            long timeToExpire = expirationDate.getTime() - System.currentTimeMillis();
+
+            if (timeToExpire < 0) {
+                response.setLogout(true);
+                return response;
+            }
+
+            if (timeToExpire < 1000 * 60 * 5) {
+                String newToken = jwtService.refreshToken(token);
+                response.setToken(newToken);
+                response.setRefresh(true);
+            } else {
+                response.setRefresh(false);
+            }
+
+        } catch (Exception e) {
+            response.setLogout(true);
+        }
+
+        return response;
+    }
 }

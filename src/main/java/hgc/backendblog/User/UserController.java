@@ -16,7 +16,7 @@ import hgc.backendblog.User.Responses.UserRoleResponse;
 
 @RestController
 @RequestMapping("api/v1/user")
-@CrossOrigin(origins = { "http://localhost:4200" })
+@CrossOrigin(origins = { "http://localhost:4200", "https://blogpi-tfg.netlify.app" })
 public class UserController {
 	private final UserService userService;
 

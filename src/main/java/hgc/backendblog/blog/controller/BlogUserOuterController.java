@@ -9,7 +9,6 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/hgcBackendBlogs/users/outer/api/blogs/")
 //Reemplazar con url de despliegue del frontend
-@CrossOrigin(origins = { "http://localhost:4200" })
 @RequiredArgsConstructor
 public class BlogUserOuterController {
 

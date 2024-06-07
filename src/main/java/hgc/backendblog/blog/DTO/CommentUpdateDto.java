@@ -4,16 +4,18 @@ public class CommentUpdateDto {
     private String author;
     private String blogId;
     private String content;
+	private String token;
 
     public CommentUpdateDto() {
         super();
     }
 
-	public CommentUpdateDto(String author, String blogId, String content) {
+	public CommentUpdateDto(String author, String blogId, String content, String token) {
 		super();
 		this.author = author;
 		this.blogId = blogId;
 		this.content = content;
+		this.token = token;
 	}
 
 	public String getAuthor() {
@@ -32,8 +34,6 @@ public class CommentUpdateDto {
 		this.blogId = blogId;
 	}
 
-
-
 	public String getContent() {
 		return content;
 	}
@@ -41,5 +41,15 @@ public class CommentUpdateDto {
 	public void setContent(String content) {
 		this.content = content;
 	}
+
+	public String getToken() {
+		return token;
+	}
+
+	public void setToken(String token) {
+		this.token = token;
+	}
+
+	
 
 }

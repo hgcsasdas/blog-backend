@@ -10,8 +10,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @ResponseBody
 public class AuthResponse {
-	String token;
-	boolean logged = false;
+	private String token;
+	private boolean logged = false;
 
 	public AuthResponse() {
 		super();
