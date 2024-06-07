@@ -2,7 +2,6 @@ package hgc.backendblog.blog.controller;
 
 import hgc.backendblog.blog.Entity.Blog;
 import hgc.backendblog.blog.service.BlogService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -10,7 +9,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/hgcBackendBlogs/users/outer/api/blogs/")
-@RequiredArgsConstructor
 public class BlogUserOuterController {
 
 	private final BlogService blogService;
